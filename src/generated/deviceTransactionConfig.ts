@@ -12,6 +12,8 @@ import elrond from "../families/elrond/deviceTransactionConfig";
 
 import ethereum from "../families/ethereum/deviceTransactionConfig";
 
+import hedera from "../families/hedera/deviceTransactionConfig";
+
 import polkadot from "../families/polkadot/deviceTransactionConfig";
 
 import ripple from "../families/ripple/deviceTransactionConfig";
@@ -33,6 +35,7 @@ export default {
   crypto_org,
   elrond,
   ethereum,
+  hedera,
   polkadot,
   ripple,
   solana,
