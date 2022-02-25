@@ -14,6 +14,23 @@ import { DerivationType } from "@taquito/ledger-signer";
 import { compressPublicKey } from "@taquito/ledger-signer/dist/lib/utils";
 import { b58cencode, prefix, Prefix } from "@taquito/utils";
 
+function isStringHex(s: string): boolean {
+  for (let i = 0; i < s.length; i += 2) {
+    const ss = s.slice(i, i + 2);
+    const x = parseInt(ss, 16);
+    if (Number.isNaN(x)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function encodeHexToPubKey(publicKeyHex: string) {
+  return b58cencode(
+    compressPublicKey(Buffer.from(publicKeyHex, "hex"), DerivationType.ED25519),
+    prefix[Prefix.EDPK]
+  );
+}
 function restorePublicKey(
   publicKey: string,
   initialAccount: Account | undefined,
@@ -23,19 +40,16 @@ function restorePublicKey(
   if (initialAccount) {
     const { tezosResources } = initialAccount;
     if (tezosResources) {
+      if (isStringHex(tezosResources.publicKey)) {
+        return encodeHexToPubKey(tezosResources.publicKey);
+      }
       return tezosResources.publicKey;
     }
     const { xpubOrAddress } = decodeAccountId(initialAccount.id);
     if (xpubOrAddress) return xpubOrAddress;
   }
   invariant(rest.publicKey, "publicKey must not be empty");
-  return b58cencode(
-    compressPublicKey(
-      Buffer.from(rest.publicKey, "hex"),
-      DerivationType.ED25519
-    ),
-    prefix[Prefix.EDPK]
-  );
+  return encodeHexToPubKey(rest.publicKey);
 }
 
 export const getAccountShape: GetAccountShape = async (infoInput) => {
@@ -74,6 +88,7 @@ export const getAccountShape: GetAccountShape = async (infoInput) => {
   if (apiAccount.type === "empty") {
     return {
       id: accountId,
+      xpub: address,
       blockHeight,
       lastSyncDate: new Date(),
       tezosResources: {
@@ -83,13 +98,12 @@ export const getAccountShape: GetAccountShape = async (infoInput) => {
       },
     };
   }
-  invariant(
-    apiAccount.type === "user",
-    "unsupported account of type ",
-    apiAccount.type
-  );
 
-  const apiOperations = await fetchAllTransactions(address, lastId);
+  const fullySupported = apiAccount.type === "user";
+
+  const apiOperations = fullySupported
+    ? await fetchAllTransactions(address, lastId)
+    : [];
 
   const { revealed, counter, publicKey } = apiAccount;
 
@@ -110,6 +124,7 @@ export const getAccountShape: GetAccountShape = async (infoInput) => {
 
   const accountShape = {
     id: accountId,
+    xpub: address,
     operations,
     balance,
     subAccounts,
@@ -204,6 +219,8 @@ const txToOp =
       level: blockHeight,
       block: blockHash,
       timestamp,
+      storageLimit,
+      gasLimit,
     } = tx;
 
     if (!hash) {
@@ -238,7 +255,7 @@ const txToOp =
       blockHash,
       accountId,
       date: new Date(timestamp),
-      extra: { id },
+      extra: { gasLimit: gasLimit, storageLimit: storageLimit, id },
       hasFailed,
     };
   };
