@@ -18,6 +18,9 @@ import type {
   DerivationMode,
   SyncConfig,
   CryptoCurrencyIds,
+  NFT,
+  ProtoNFT,
+  Currency,
 } from ".";
 export type ScanAccountEvent = {
   type: "discovered";
@@ -66,6 +69,11 @@ export interface CurrencyBridge {
     preferredNewAccountScheme?: DerivationMode;
   }): Observable<ScanAccountEvent>;
   getPreloadStrategy?: (currency: CryptoCurrency) => PreloadStrategy;
+  nftMetadataResolver?: (arg: {
+    contract: string;
+    tokenId: string;
+    currency: Currency;
+  }) => Promise<NFT>;
 }
 // Abstraction related to an account
 export interface AccountBridge<T extends Transaction> {

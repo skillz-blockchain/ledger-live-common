@@ -2,19 +2,32 @@ import type BigNumber from "bignumber.js";
 
 export type NFTStandards = "ERC721" | "ERC1155";
 
-export type NFT = {
+export type NFTMetadata = {
+  tokenName: string | null;
+  nftName: string | null;
+  media: string | null;
+  description: string | null;
+  properties: Array<Record<"key" | "value", string>>;
+  links: Record<NFTMetadataLinksProviders, string>;
+};
+
+export type ProtoNFT = {
   // id crafted by live
   id: string;
   // id on chain
   tokenId: string;
   amount: BigNumber;
-  collection: {
-    // contract address. Careful 1 contract address != 1 collection as some collections are off-chain
-    // So 1 contract address from OpenSea for example can reprensent an infinity of collections
-    contract: string;
-    // Carefull to non spec compliant NFTs (cryptopunks, cryptokitties, ethrock, and others?)
-    standard: NFTStandards | string;
-  };
+  // contract address. Careful 1 contract address != 1 collection as some collections are off-chain
+  // So 1 contract address from OpenSea for example can reprensent an infinity of virtual collections on OS
+  // Carefull to non spec compliant NFTs (cryptopunks, cryptokitties, ethrock, and others?)
+  contract: string;
+  standard: NFTStandards;
+  currencyId: string;
+  metadata?: NFTMetadata;
+};
+
+export type NFT = ProtoNFT & {
+  metadata: NFTMetadata;
 };
 
 export type NFTRaw = Omit<NFT, "amount"> & {

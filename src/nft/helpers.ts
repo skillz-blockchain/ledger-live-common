@@ -3,14 +3,6 @@ import BigNumber from "bignumber.js";
 import { NFT, Operation } from "../types";
 import { encodeNftId } from ".";
 
-type Collection = NFT["collection"];
-
-type CollectionMap<C> = Record<string, C>;
-
-export type CollectionWithNFT = Collection & {
-  nfts: Array<Omit<NFT, "collection">>;
-};
-
 export const nftsFromOperations = (ops: Operation[]): NFT[] => {
   const nftsMap = ops
     // if ops are Operations get the prop nftOperations, else ops are considered nftOperations already
@@ -50,27 +42,9 @@ export const nftsFromOperations = (ops: Operation[]): NFT[] => {
 
 export const nftsByCollections = (
   nfts: NFT[] = [],
-  collectionAddress?: string
-): CollectionWithNFT[] => {
-  const filteredNfts = collectionAddress
-    ? nfts.filter((n) => n.collection.contract === collectionAddress)
-    : nfts;
-
-  const collectionMap = filteredNfts.reduce(
-    (acc: CollectionMap<CollectionWithNFT>, nft: NFT) => {
-      const { collection, ...nftWithoutCollection } = nft;
-
-      if (!acc[collection.contract]) {
-        acc[collection.contract] = { ...collection, nfts: [] };
-      }
-      acc[collection.contract].nfts.push(nftWithoutCollection);
-
-      return acc;
-    },
-    {} as CollectionMap<CollectionWithNFT>
-  );
-
-  return Object.values(collectionMap);
+  collectionAddress: string
+): NFT[] => {
+  return nfts.filter((n) => n.contract === collectionAddress);
 };
 
 export const getNftKey = (contract: string, tokenId: string): string => {

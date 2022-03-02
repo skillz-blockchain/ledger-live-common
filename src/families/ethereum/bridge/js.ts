@@ -210,6 +210,7 @@ const currencyBridge: CurrencyBridge = {
   preload,
   hydrate,
   scanAccounts,
+  nftMetadataResolver,
 };
 const accountBridge: AccountBridge<Transaction> = {
   createTransaction,
