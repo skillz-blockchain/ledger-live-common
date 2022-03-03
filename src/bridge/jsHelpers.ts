@@ -450,6 +450,7 @@ export const makeScanAccounts =
                     publicKey: addresses[index],
                     path: freshAddressPath,
                   };
+                  derivationsCache[freshAddressPath] = res;
                 }
 
                 account = await stepAccount(
@@ -466,8 +467,8 @@ export const makeScanAccounts =
                 }
               }
             } else {
-              const stopAt = isIterableDerivationMode(derivationMode) ? 255 : 1;
               const startsAt = getDerivationModeStartsAt(derivationMode);
+              const stopAt = isIterableDerivationMode(derivationMode) ? 255 : 1;
 
               log(
                 "debug",
