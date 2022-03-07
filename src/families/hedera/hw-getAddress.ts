@@ -7,9 +7,6 @@ const resolver: Resolver = async (transport, { path }) => {
   const hedera = new Hedera(transport);
   const publicKey = await hedera.getPublicKey(path);
 
-  // TODO REMOVE THIS
-  log("engine", `Pubkey for Hedera: "${publicKey}`);
-
   return {
     path,
     // NOTE: we do not have the address, it must be entered by the user
