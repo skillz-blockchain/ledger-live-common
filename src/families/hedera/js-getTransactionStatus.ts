@@ -19,9 +19,12 @@ export default async function getTransactionStatus(
   if (!transaction.recipient || transaction.recipient.length === 0) {
     errors.recipient = new RecipientRequired("");
   } else {
+    // TODO Restore this when the bot has several accounts
+    /*
     if (account.freshAddress === transaction.recipient) {
       errors.recipient = new InvalidAddressBecauseDestinationIsAlsoSource("");
     }
+    */
 
     try {
       AccountId.fromString(transaction.recipient);

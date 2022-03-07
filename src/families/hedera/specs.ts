@@ -4,7 +4,6 @@ import { getCryptoCurrencyById, parseCurrencyUnit } from "../../currencies";
 import { DeviceModelId } from "@ledgerhq/devices";
 import type { AppSpec } from "../../bot/types";
 import type { Transaction } from "./types";
-import type { Account } from "../../types";
 import { pickSiblings } from "../../bot/specs";
 import { isAccountEmpty } from "../../account";
 
@@ -38,7 +37,7 @@ const hedera: AppSpec<Transaction> = {
     {
       name: "Transfer ~50%",
       maxRun: 2,
-      transaction: ({ account, siblings, bridge, maxSpendable }) => {
+      transaction: ({ account, siblings, bridge }) => {
         const sibling = pickSiblings(siblings, 4);
         const recipient = sibling.freshAddress;
 
@@ -56,12 +55,49 @@ const hedera: AppSpec<Transaction> = {
         };
       },
       test: ({ account, accountBeforeTransaction, operation }) => {
-        const rewards =
-          accountBeforeTransaction.algorandResources?.rewards || 0;
-
-        expect(account.balance.plus(rewards).toString()).toBe(
+        expect(account.balance.toString()).toBe(
           accountBeforeTransaction.balance.minus(operation.value).toString()
         );
+      },
+    },
+    {
+      name: "Self send 50%",
+      maxRun: 2,
+      transaction: ({ account, bridge }) => {
+        const recipient = account.freshAddress;
+
+        const transaction = bridge.createTransaction(account);
+
+        const amount = account.balance
+          .div(1.9 + 0.2 * Math.random())
+          .integerValue();
+
+        return {
+          transaction,
+          updates: [{ recipient }, { amount }],
+        };
+      },
+      test: ({ account, accountBeforeTransaction, operation }) => {
+        expect(account.balance.toString()).toBe(
+          accountBeforeTransaction.balance.minus(operation.value).toString()
+        );
+      },
+    },
+    {
+      name: "Self send max",
+      maxRun: 2,
+      transaction: ({ account, bridge }) => {
+        const recipient = account.freshAddress;
+
+        const transaction = bridge.createTransaction(account);
+
+        return {
+          transaction,
+          updates: [{ recipient }, { useAllAmount: true }],
+        };
+      },
+      test: ({ account }) => {
+        expect(account.balance.toNumber()).toBe(0);
       },
     },
   ],
