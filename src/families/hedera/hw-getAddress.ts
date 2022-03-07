@@ -8,7 +8,7 @@ const resolver: Resolver = async (transport, { path }) => {
   const publicKey = await hedera.getPublicKey(path);
 
   // TODO REMOVE THIS
-  log("engine", "Pubkey for Hedera:", publicKey);
+  log("engine", `Pubkey for Hedera: "${publicKey}`);
 
   return {
     path,
