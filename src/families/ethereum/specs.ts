@@ -398,6 +398,29 @@ const ethereumRopsten: AppSpec<Transaction> = {
     maxAccount: 8,
   }),
 };
+const ethereumGoerli: AppSpec<Transaction> = {
+  name: "Ethereum Goerli",
+  currency: getCryptoCurrencyById("ethereum_goerli"),
+  appQuery: {
+    model: DeviceModelId.nanoS,
+    appName: "Ethereum",
+  },
+  testTimeout,
+  transactionCheck: ({ maxSpendable }) => {
+    invariant(
+      maxSpendable.gt(
+        parseCurrencyUnit(
+          getCryptoCurrencyById("ethereum_goerli").units[0],
+          "0.01"
+        )
+      ),
+      "balance is too low"
+    );
+  },
+  mutations: ethereumBasicMutations({
+    maxAccount: 8,
+  }),
+};
 
 const bsc: AppSpec<Transaction> = {
   name: "BSC",
@@ -498,5 +521,6 @@ export default {
   polygon,
   ethereum,
   ethereumClassic,
+  ethereumGoerli,
   ethereumRopsten,
 };

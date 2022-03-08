@@ -189,6 +189,13 @@ const initialExplorerConfig: FullConfig = {
       version: "v3",
     },
   },
+  ethereum_goerli: {
+    id: "eth_ropsten",
+    stable: {
+      base: "EXPLORER",
+      version: "v3",
+    },
+  },
   ethereum_classic: {
     id: "etc",
     stable: {
